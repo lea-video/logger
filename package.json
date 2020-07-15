@@ -1,0 +1,23 @@
+{
+  "name": "logger",
+  "description": "",
+  "keywords": [],
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lea-video/logger.git"
+  },
+  "author": "TimeForANinja (https://github.com/timeforaninja)",
+  "contributors": [
+    "Tobias Kutscha (https://github.com/TimeForANinja)"
+  ],
+  "main": "./index.js",
+  "scripts": {
+    "lint": "eslint ./",
+    "lint:fix": "eslint --fix ./"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "license": "MIT"
+}

@@ -1,48 +1,53 @@
 const FS = require('fs');
 const HTTPS = require('https');
 
-const types = ['debug', 'warn', 'error'];
-const target = { file: require('path').resolve(__dirname, './logs.txt, remote: null, stdout: false };
-const e = module.exports = {};
+class Logger {
+  constructor(module, file, remote) {
+    this._stdout = false;
+    this._file = file;
+    this._remote = remote;
+    this._module = module;
+  }
+  
+  setSTDOUT(stdout) {
+    this._stdout = stdout;
+  }
+  
+  _log(level, txt, ...payload) {
+    const expanded = {
+      level,
+      module: this._module,
+      msg: txt,
+      payload,
+      stack: (new Error()).stack,
+      time: Date.now(),
+    };
+    if(target._file) {
+      FS.appendFile(target._file, JSON.stringify(expanded) + '\n')
+    }
+    if(target._stdout) {
+      console.log(`${level}@[${new Date(expanded.time).toISOString()}]${JSON.stringify(expanded)}`);
+    }
+    if(target._remote) {
+      const req = HTTPS.request(`${target._remote.ip}:${target._remote.port}${target._remote.path}`, {auth: target._remote.auth});
+      req.write(JSON.stringify(expanded));
+      req.end();
+    }
+  }
+}
+Logger.levels = ['debug', 'info', 'warn', 'error'];
+for(const level of Logger.levels) {
+  Logger.prototype[level] = (...args) => Logger.prototype._log(level, ...args);
+}
 
-e.setFileLocation = (location) => {
-  target = {file: location};
+exports.initFile = (module, file) => {
+  return new Logger(module, file, null);
 }
-e.removeFileLocation = () => {
-  target.file = null;
-}
-e.setSTDOUT = () => {
-  target.stdout = true;
-}
-e.removeSTDOUT = () => {
-  target.stdout = false;
-}
-e.setRemoteLocation = (ip, auth, port=443, path='/') => {
-  target = {remote: {ip, port, path, auth}};
-}
-e.removeFileLocation = () => {
-  target.remove = null;
-}
-
-for(const type of types) {
-  e[type] = (txt, ...data) => log(type, txt, ...data);
-}
-const log = (level, txt, ...data) => {
-  const expanded = JSON.stringify({
-    msg: txt,
-    data,
-    stack: (new Error()).stack,
-    time: Date.now(),
+exports.initRemote = (module, ip, auth, port, path) => {
+  return new Logger(module, null, {
+    ip,
+    auth,
+    port,
+    path,
   });
-  if(target.stdout) {
-    console.log(expanded);
-  }
-  if(target.file) {
-    FS.appendFile(target.file, expanded + '\n')
-  }
-  if(target.remote) {
-    const req = HTTPS.request(`${target.remote.ip}:${target.remote.port}${target.remote.path}`, {auth: target.remote.auth});
-    req.write(expanded);
-    req.end();
-  }
 }

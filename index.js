@@ -25,11 +25,12 @@ e.removeFileLocation = () => {
 }
 
 for(const type of types) {
-  e[type] = (txt) => log(type, txt);
+  e[type] = (txt, ...data) => log(type, txt, ...data);
 }
-const log = (level, txt) => {
+const log = (level, txt, ...data) => {
   const expanded = JSON.stringify({
     msg: txt,
+    data,
     stack: (new Error()).stack,
     time: Date.now(),
   });

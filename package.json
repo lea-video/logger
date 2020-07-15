@@ -11,7 +11,7 @@
   "contributors": [
     "Tobias Kutscha (https://github.com/TimeForANinja)"
   ],
-  "main": "./index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "lint": "eslint ./",
     "lint:fix": "eslint --fix ./"
